@@ -1,5 +1,5 @@
 import { SHELF_TYPES, shelfTypeU } from './constants'
-import type { PartStyle, Shelf, ShelfType, ShelfU } from './types'
+import type { PartStyle, Shelf, ShelfMount, ShelfType, ShelfU } from './types'
 import { DEFAULT_STYLES } from './defaults'
 
 /**
@@ -24,6 +24,7 @@ function makeShelf(shelfType: ShelfType, startU: number, existing: Shelf[], temp
     u: shelfTypeU(shelfType),
     shelfType,
     startU,
+    mount: 'front',
     solid: style.solid,
     color: style.color,
     pattern: style.pattern,
@@ -41,6 +42,15 @@ export function normalizeShelfType(shelf: Shelf): ShelfType {
   if (shelf.shelfType && VALID_SHELF_TYPES.has(shelf.shelfType)) return shelf.shelfType
   if (shelf.solid) return shelf.u >= 2 ? 'plate-2u' : 'plate-1u'
   return 'shelf-open-1u'
+}
+
+/**
+ * Best-effort `mount` for a shelf that predates the field (persisted saves,
+ * share links) or carries a bad value — anything unrecognised reads as front,
+ * which is how every shelf behaved before the field existed.
+ */
+export function normalizeShelfMount(shelf: Shelf): ShelfMount {
+  return shelf.mount === 'rear' ? 'rear' : 'front'
 }
 
 export function sumU(shelves: Shelf[]): number {

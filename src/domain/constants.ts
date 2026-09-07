@@ -85,6 +85,8 @@ export const SHELF_TYPES: ShelfTypeDef[] = [
   { id: 'shelf-plate-keystone-1u', label: 'Keystone plate (1U)', u: 1 },
   { id: 'shelf-sbc-7-2u', label: 'SBC holder ×7 (2U)', u: 2 },
   { id: 'shelf-mini-itx-2u', label: 'Mini-ITX shelf (2U)', u: 2 },
+  { id: 'shelf-switch-sg108-1u', label: 'TL-SG108 switch (1U)', u: 1 },
+  { id: 'shelf-psu-atx-2u', label: 'ATX PSU holder (2U)', u: 2 },
 ]
 
 export function shelfTypeU(id: ShelfType): ShelfU {

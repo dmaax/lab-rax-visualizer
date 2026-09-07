@@ -1,5 +1,5 @@
 import { SHELF_TYPES } from '../../domain/constants'
-import { findFirstGap, maxDownGrowth, sumU } from '../../domain/shelves'
+import { findFirstGap, maxDownGrowth, normalizeShelfMount, sumU } from '../../domain/shelves'
 import type { ShelfType } from '../../domain/types'
 import { useBuildStore } from '../../store/use-build-store'
 import { PalettePicker } from '../../ui/palette-picker'
@@ -9,6 +9,7 @@ export function ShelfEditor() {
   const palette = useBuildStore((s) => s.palette)
   const shelves = useBuildStore((s) => s.shelves)
   const setShelfType = useBuildStore((s) => s.setShelfType)
+  const setShelfMount = useBuildStore((s) => s.setShelfMount)
   const setShelfStyle = useBuildStore((s) => s.setShelfStyle)
   const addShelf = useBuildStore((s) => s.addShelf)
   const removeShelf = useBuildStore((s) => s.removeShelf)
@@ -60,6 +61,17 @@ export function ShelfEditor() {
                   </option>
                 ))}
               </select>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShelfMount(shelf.id, normalizeShelfMount(shelf) === 'rear' ? 'front' : 'rear')
+                }
+                className="h-7 shrink-0 rounded bg-black/40 px-2 text-[10px] text-white/70 ring-1 ring-white/10 hover:text-white pointer-coarse:h-11"
+                title="Mount this shelf on the front or the rear of the rack"
+              >
+                {normalizeShelfMount(shelf) === 'rear' ? 'Rear' : 'Front'}
+              </button>
 
               <div className="ml-auto flex items-center gap-1">
                 <PalettePicker

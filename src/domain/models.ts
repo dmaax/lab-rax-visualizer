@@ -61,6 +61,8 @@ export const SHELF_TYPE_FILES: Record<ShelfType, string> = {
   'shelf-plate-keystone-1u': 'shelf-plate-keystone-1u.stl',
   'shelf-sbc-7-2u': 'shelf-sbc-7-2u.stl',
   'shelf-mini-itx-2u': 'shelf-mini-itx-2u.stl',
+  'shelf-switch-sg108-1u': 'shelf-switch-sg108-1u.3mf',
+  'shelf-psu-atx-2u': 'shelf-psu-atx-2u.3mf',
 } as const
 
 // --- Measured constants (from inspecting the actual files) -------------------

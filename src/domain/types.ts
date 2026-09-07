@@ -41,6 +41,11 @@ export type ShelfType =
   | 'shelf-plate-keystone-1u'
   | 'shelf-sbc-7-2u'
   | 'shelf-mini-itx-2u'
+  | 'shelf-switch-sg108-1u'
+  | 'shelf-psu-atx-2u'
+
+/** Which face of the rack a shelf is mounted to. */
+export type ShelfMount = 'front' | 'rear'
 
 export interface Shelf {
   id: string
@@ -52,6 +57,10 @@ export interface Shelf {
    * Shelves are independently positioned — gaps and "no shelves" are both
    * valid; they are not forced to fill or stack contiguously. */
   startU: number
+  /** Rack face this shelf mounts to. Rear-mounted shelves are turned around
+   * so their bracket faces the back, which lets a row hold an open shelf at
+   * the front and something like a PSU bracket behind it. */
+  mount: ShelfMount
   /** true = solid shelf, false = shelf with a center hole (for visualization). */
   solid: boolean
   color: string

@@ -7,6 +7,7 @@ import type {
   PartType,
   PartVisibility,
   Shelf,
+  ShelfMount,
   ShelfType,
 } from '../domain/types'
 import { PALETTE_SIZE } from '../domain/types'
@@ -20,6 +21,7 @@ interface BuildActions {
   setPartStyle: (part: PartType, patch: Partial<PartStyle>) => void
   setPaletteColor: (index: number, color: string) => void
   toggle: (part: OptionalPart) => void
+  setShelfMount: (id: string, mount: ShelfMount) => void
   setShelfType: (id: string, shelfType: ShelfType) => void
   setShelfStyle: (id: string, patch: Partial<Omit<Shelf, 'id' | 'u' | 'shelfType'>>) => void
   addShelf: () => void
@@ -83,6 +85,11 @@ export const useBuildStore = create<BuildStore>()(
 
       toggle: (part) =>
         set((s) => ({ toggles: { ...s.toggles, [part]: !s.toggles[part] } })),
+
+      setShelfMount: (id, mount) =>
+        set((s) => ({
+          shelves: s.shelves.map((sh) => (sh.id === id ? { ...sh, mount } : sh)),
+        })),
 
       setShelfType: (id, shelfType) =>
         set((s) => {

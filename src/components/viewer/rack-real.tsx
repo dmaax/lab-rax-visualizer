@@ -15,6 +15,7 @@ import {
   decomposeIntoSegments,
 } from '../../domain/models'
 import type { ShelfType } from '../../domain/types'
+import { normalizeShelfMount } from '../../domain/shelves'
 import { useBuildStore } from '../../store/use-build-store'
 import { use3mfPart, useStlPart } from './materials/use-model-geometry'
 import type { PreparedGeometry } from './materials/use-model-geometry'
@@ -66,6 +67,12 @@ export function RackReal() {
   // the depth - so it takes a quarter turn about X on top of the bake, which
   // stands the front bezel up and leaves the tray at the bottom.
   const shelfMiniItx2u = useStlPart(SHELF_TYPE_FILES['shelf-mini-itx-2u'], 0, -Math.PI / 2)
+  // Lies on its back like the Mini-ITX tray, so it takes the same quarter
+  // turn about X to stand its bracket up.
+  const shelfSwitchSg1081u = use3mfPart(SHELF_TYPE_FILES['shelf-switch-sg108-1u'], 0, -Math.PI / 2)
+  // Already Z-up with its own Z spanning the 2U height, so no extra turn.
+  // Its .3mf holds two objects, which mergedMeshGeometry folds into one.
+  const shelfPsuAtx2u = use3mfPart(SHELF_TYPE_FILES['shelf-psu-atx-2u'])
   const shelfGeoByType: Record<ShelfType, PreparedGeometry> = {
     'plate-1u': plate1u,
     'plate-2u': plate2u,
@@ -77,6 +84,8 @@ export function RackReal() {
     'shelf-plate-keystone-1u': shelfKeystone1u,
     'shelf-sbc-7-2u': shelfSbc72u,
     'shelf-mini-itx-2u': shelfMiniItx2u,
+    'shelf-switch-sg108-1u': shelfSwitchSg1081u,
+    'shelf-psu-atx-2u': shelfPsuAtx2u,
   }
 
   const totalHeight = rackU * U_MM
@@ -404,21 +413,25 @@ export function RackReal() {
       {/* Shelves: one real part per shelf, picked by its `shelfType` (each a
           fixed 1U or 2U model — see domain/models.ts SHELF_TYPE_FILES).
           Shelves are independently positioned via startU, so gaps and "no
-          shelves at all" are just... nothing rendered there. No rotation —
-          the trays are already correctly oriented. Z is shifted forward
-          (shelfZ) so it extends past the front width rail's front edge by
-          SHELF_OVERSHOOT_MM. Y (shelfY) lands the shelf's top flush with the
+          shelves at all" are just... nothing rendered there. Front-mounted
+          trays render unrotated; rear-mounted ones are turned about Y so
+          their bracket faces the back and sit at the mirrored depth, which
+          is what lets a rear PSU bracket share rows with open front shelves.
+          Z is shifted so the tray reaches past the width rail's own outer
+          edge by SHELF_OVERSHOOT_MM. Y (shelfY) lands the shelf's top flush with the
           top of its highest occupied row. */}
       {visibility.shelves &&
         shelves.map((shelf) => {
           const geo = shelfGeoByType[shelf.shelfType]
           const topRow = shelf.startU + shelf.u - 1
+          const rear = normalizeShelfMount(shelf) === 'rear'
           return (
             <RealMesh
               key={`shelf-${shelf.id}`}
               geometry={geo.geometry}
               color={shelf.color}
-              position={[0, shelfY(geo, topRow), shelfZ(geo)]}
+              position={[0, shelfY(geo, topRow), rear ? -shelfZ(geo) : shelfZ(geo)]}
+              rotation={rear ? [0, Math.PI, 0] : undefined}
             />
           )
         })}
