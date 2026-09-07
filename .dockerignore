@@ -1,0 +1,14 @@
+.git
+.gitignore
+node_modules
+dist
+*.tsbuildinfo
+npm-debug.log*
+.claude
+.agents
+skills-lock.json
+CLAUDE.md
+.mcp.json
+Dockerfile
+.dockerignore
+docker-compose.yml
