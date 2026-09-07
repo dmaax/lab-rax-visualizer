@@ -92,6 +92,29 @@ export function findFirstGap(shelves: Shelf[], rackU: number, size: ShelfU = 1):
 }
 
 /**
+ * Whether a shelf can shift `delta` rows without leaving the rack or landing
+ * on another shelf. Positive delta moves it up, since row 0 is the bottom.
+ * Gaps are legal here (see `findFirstGap`), so a shelf may move into any free
+ * space, not only adjacent to its neighbours.
+ */
+export function canMoveShelf(
+  shelves: Shelf[],
+  rackU: number,
+  shelfId: string,
+  delta: number,
+): boolean {
+  const shelf = shelves.find((s) => s.id === shelfId)
+  if (!shelf) return false
+  const start = shelf.startU + delta
+  if (start < 0 || start + shelf.u > rackU) return false
+  const occupied = occupiedRows(shelves, rackU, shelfId)
+  for (let row = start; row < start + shelf.u; row++) {
+    if (occupied[row]) return false
+  }
+  return true
+}
+
+/**
  * How large a shelf whose top sits at `topRow` could grow, extending
  * downward with its top held fixed, without overlapping another shelf or
  * going below row 0. Growth has to extend *down*, not up: shelves are

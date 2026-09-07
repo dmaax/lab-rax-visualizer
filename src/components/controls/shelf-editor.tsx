@@ -1,5 +1,11 @@
 import { SHELF_TYPES } from '../../domain/constants'
-import { findFirstGap, maxDownGrowth, normalizeShelfMount, sumU } from '../../domain/shelves'
+import {
+  canMoveShelf,
+  findFirstGap,
+  maxDownGrowth,
+  normalizeShelfMount,
+  sumU,
+} from '../../domain/shelves'
 import type { ShelfType } from '../../domain/types'
 import { useBuildStore } from '../../store/use-build-store'
 import { PalettePicker } from '../../ui/palette-picker'
@@ -10,6 +16,7 @@ export function ShelfEditor() {
   const shelves = useBuildStore((s) => s.shelves)
   const setShelfType = useBuildStore((s) => s.setShelfType)
   const setShelfMount = useBuildStore((s) => s.setShelfMount)
+  const moveShelf = useBuildStore((s) => s.moveShelf)
   const setShelfStyle = useBuildStore((s) => s.setShelfStyle)
   const addShelf = useBuildStore((s) => s.addShelf)
   const removeShelf = useBuildStore((s) => s.removeShelf)
@@ -47,9 +54,34 @@ export function ShelfEditor() {
           const topRowNum = rackU - topRow
           const bottomRowNum = rackU - shelf.startU
           const rowLabel = shelf.u === 1 ? `Row ${topRowNum}` : `Rows ${topRowNum}-${bottomRowNum}`
+          // Stacked so the two halves together match the height of the
+          // controls beside them, on both fine and coarse pointers.
+          const nudge =
+            'grid place-items-center rounded bg-black/40 text-[8px] leading-none text-white/50 ' +
+            'ring-1 ring-white/10 hover:text-white disabled:opacity-25 disabled:hover:text-white/50 ' +
+            'h-3.5 pointer-coarse:h-[21px] pointer-coarse:text-[10px]'
           return (
             <div key={shelf.id} className="flex items-center gap-2 rounded bg-black/30 p-2">
-              <span className="w-14 text-[10px] text-white/40">{rowLabel}</span>
+              <div className="flex w-5 shrink-0 flex-col gap-px" title={rowLabel}>
+                <button
+                  type="button"
+                  onClick={() => moveShelf(shelf.id, 1)}
+                  disabled={!canMoveShelf(shelves, rackU, shelf.id, 1)}
+                  className={nudge}
+                  aria-label={`Move shelf up (currently ${rowLabel})`}
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveShelf(shelf.id, -1)}
+                  disabled={!canMoveShelf(shelves, rackU, shelf.id, -1)}
+                  className={nudge}
+                  aria-label={`Move shelf down (currently ${rowLabel})`}
+                >
+                  ▼
+                </button>
+              </div>
               <select
                 value={shelf.shelfType}
                 onChange={(e) => setShelfType(shelf.id, e.target.value as ShelfType)}

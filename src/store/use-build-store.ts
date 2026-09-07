@@ -13,7 +13,13 @@ import type {
 import { PALETTE_SIZE } from '../domain/types'
 import { MAX_U, MIN_U, shelfTypeU } from '../domain/constants'
 import { DEFAULT_PALETTE, makeAllVisible, makeDefaultBuild } from '../domain/defaults'
-import { clampShelvesToRack, findFirstGap, makeShelf, maxDownGrowth } from '../domain/shelves'
+import {
+  canMoveShelf,
+  clampShelvesToRack,
+  findFirstGap,
+  makeShelf,
+  maxDownGrowth,
+} from '../domain/shelves'
 import { decodeBuild, readShareParam } from '../share/url-state'
 
 interface BuildActions {
@@ -21,6 +27,7 @@ interface BuildActions {
   setPartStyle: (part: PartType, patch: Partial<PartStyle>) => void
   setPaletteColor: (index: number, color: string) => void
   toggle: (part: OptionalPart) => void
+  moveShelf: (id: string, delta: number) => void
   setShelfMount: (id: string, mount: ShelfMount) => void
   setShelfType: (id: string, shelfType: ShelfType) => void
   setShelfStyle: (id: string, patch: Partial<Omit<Shelf, 'id' | 'u' | 'shelfType'>>) => void
@@ -85,6 +92,17 @@ export const useBuildStore = create<BuildStore>()(
 
       toggle: (part) =>
         set((s) => ({ toggles: { ...s.toggles, [part]: !s.toggles[part] } })),
+
+      moveShelf: (id, delta) =>
+        set((s) =>
+          canMoveShelf(s.shelves, s.rackU, id, delta)
+            ? {
+                shelves: s.shelves.map((sh) =>
+                  sh.id === id ? { ...sh, startU: sh.startU + delta } : sh,
+                ),
+              }
+            : {},
+        ),
 
       setShelfMount: (id, mount) =>
         set((s) => ({
