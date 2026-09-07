@@ -43,6 +43,7 @@ export const MODEL_FILES = {
   panelTopBottom: 'panel-top-bottom.stl',
   foot: 'foot.3mf',
   handle: 'handle.3mf',
+  cableHolder: 'holder-cable-frame.stl',
 } as const
 
 /**

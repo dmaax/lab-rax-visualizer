@@ -20,6 +20,7 @@ export const PART_TYPES: PartType[] = [
   'bottomPanel',
   'handles',
   'feet',
+  'cableHolders',
   'shelves',
 ]
 
@@ -33,11 +34,13 @@ export const PART_LABELS: Record<PartType, string> = {
   bottomPanel: 'Bottom panel',
   handles: 'Handles',
   feet: 'Feet',
+  cableHolders: 'Cable holders (rear)',
   shelves: 'Shelves',
 }
 
 export const OPTIONAL_PARTS: OptionalPart[] = [
   'sidePanels',
+  'cableHolders',
   'topPanel',
   'bottomPanel',
   'handles',
@@ -99,6 +102,7 @@ export const BASE_QUANTITIES: Partial<Record<PartType, number>> = {
   verticalRails: 4, // four posts
   feet: 4,
   handles: 2,
+  cableHolders: 2, // one clipped to each rear vertical rail
   sidePanels: 2,
   topPanel: 1,
   bottomPanel: 1,

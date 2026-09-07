@@ -38,6 +38,7 @@ export function buildPartsList(state: BuildState): PartRow[] {
     'bottomPanel',
     'handles',
     'feet',
+    'cableHolders',
   ]
 
   for (const part of fixed) {

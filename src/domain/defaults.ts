@@ -12,6 +12,7 @@ const BASE_COLORS: Record<PartType, string> = {
   bottomPanel: '#20242b',
   handles: '#1a1d22',
   feet: '#1a1d22',
+  cableHolders: '#1a1d22',
   shelves: '#5a6270',
 }
 
@@ -25,6 +26,7 @@ export const DEFAULT_STYLES: Record<PartType, PartStyle> = PART_TYPES.reduce(
 
 export const DEFAULT_TOGGLES: Toggles = {
   handles: true,
+  cableHolders: true,
   feet: true,
   sidePanels: true,
   topPanel: true,

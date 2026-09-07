@@ -51,6 +51,7 @@ export function RackReal() {
   const topBottomPanel = useStlPart(MODEL_FILES.panelTopBottom)
   const foot = use3mfPart(MODEL_FILES.foot)
   const handle = use3mfPart(MODEL_FILES.handle)
+  const cableHolder = useStlPart(MODEL_FILES.cableHolder)
 
   const plate1u = useStlPart(SHELF_TYPE_FILES['plate-1u'], Math.PI, Math.PI / 2)
   const plate2u = useStlPart(SHELF_TYPE_FILES['plate-2u'], Math.PI, Math.PI / 2)
@@ -409,6 +410,28 @@ export function RackReal() {
           />
         </Fragment>
       )}
+
+      {/* Cable holders: clipped to the two rear vertical rails, one each.
+          The part is modelled with its screw plate last along its own depth
+          and the hooks opening the other way, so it takes a half turn about Y
+          for the plate to meet the rail's back face and the hooks to open
+          away from the rack, where cables are actually run. Sits just behind
+          that face and is centered over the rails' own span. */}
+      {toggles.cableHolders &&
+        visibility.cableHolders &&
+        [leftRailX, rightRailX].map((x, i) => (
+          <RealMesh
+            key={`cable-holder-${i}`}
+            geometry={cableHolder.geometry}
+            color={parts.cableHolders.color}
+            position={[
+              x,
+              WIDTH_RAIL_BAR_TOP_MM + (totalHeight - cableHolder.size.y) / 2,
+              backRailZ - rail1.size.z / 2 - cableHolder.size.z / 2,
+            ]}
+            rotation={[0, PI, 0]}
+          />
+        ))}
 
       {/* Shelves: one real part per shelf, picked by its `shelfType` (each a
           fixed 1U or 2U model — see domain/models.ts SHELF_TYPE_FILES).
