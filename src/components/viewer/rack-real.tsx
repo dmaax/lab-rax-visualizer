@@ -455,7 +455,12 @@ export function RackReal() {
               geometry={geo.geometry}
               color={shelf.color}
               position={[0, shelfY(geo, topRow), rear ? -shelfZ(geo) : shelfZ(geo)]}
-              rotation={rear ? [0, Math.PI, 0] : undefined}
+              // Explicitly zeroed rather than left undefined: the mesh survives a
+              // front/rear switch (its React key is the shelf id), and dropping the
+              // prop is not guaranteed to reset a value already applied to the
+              // object — which left a shelf switched back to the front still facing
+              // backwards.
+              rotation={rear ? [0, PI, 0] : [0, 0, 0]}
             />
           )
         })}
