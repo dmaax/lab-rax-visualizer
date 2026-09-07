@@ -171,6 +171,38 @@ npm run preview   # serve the dist/ build locally, for a pre-deploy sanity check
 There is no `.env` / environment configuration required — the app has no
 backend calls of any kind.
 
+## Running with Docker
+
+Handy on Windows, where it avoids installing Node and keeps `node_modules`
+(and its platform-specific binaries) out of the working tree. Requires Docker
+Desktop; no other prerequisites.
+
+```bash
+docker compose up dev        # dev server + hot reload -> http://localhost:5173
+docker compose up preview    # production build behind nginx -> http://localhost:8080
+```
+
+Stop with `Ctrl+C`, or `docker compose down`. After changing
+`package.json`/`package-lock.json`, rebuild the image so dependencies are
+reinstalled:
+
+```bash
+docker compose build dev
+```
+
+How it is wired:
+
+- `Dockerfile` is multi-stage — `deps` (`npm ci`, cached on its own layer),
+  `dev` (Vite dev server), `build` (`npm run build`) and `prod`
+  (the `dist/` output served by nginx via `docker/nginx.conf`).
+- The `dev` service bind-mounts the project so edits on the host are picked up
+  live, while an anonymous volume keeps the container's own `node_modules` —
+  a `node_modules` installed natively on Windows can never shadow it.
+- Host bind mounts don't forward filesystem events into the container, so the
+  `dev` service sets `VITE_USE_POLLING=true`, which switches the watcher in
+  `vite.config.ts` to polling. Running natively (`npm run dev`) leaves that
+  unset and keeps the faster event-based watcher.
+
 ## Deploying to a web server
 
 The app builds to a fully static `dist/` folder (HTML/CSS/JS + the 3D model

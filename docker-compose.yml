@@ -1,0 +1,25 @@
+# Two ways to run the planner:
+#   docker compose up dev       -> http://localhost:5173  (hot reload)
+#   docker compose up preview   -> http://localhost:8080  (production build)
+services:
+  dev:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "5173:5173"
+    volumes:
+      # Live source from the host...
+      - .:/app
+      # ...but keep the container's own node_modules (Linux binaries), so a
+      # node_modules installed on Windows can never shadow it.
+      - /app/node_modules
+    environment:
+      VITE_USE_POLLING: "true"
+
+  preview:
+    build:
+      context: .
+      target: prod
+    ports:
+      - "8080:80"
