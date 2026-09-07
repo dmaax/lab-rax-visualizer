@@ -6,7 +6,7 @@ import {
   normalizeShelfMount,
   sumU,
 } from '../../domain/shelves'
-import type { ShelfType } from '../../domain/types'
+import type { ShelfMount, ShelfType } from '../../domain/types'
 import { useBuildStore } from '../../store/use-build-store'
 import { PalettePicker } from '../../ui/palette-picker'
 
@@ -21,10 +21,18 @@ export function ShelfEditor() {
   const addShelf = useBuildStore((s) => s.addShelf)
   const removeShelf = useBuildStore((s) => s.removeShelf)
 
-  const used = sumU(shelves)
-  // "Full" means no gap anywhere fits even a 1U shelf — shelves don't have
-  // to be contiguous, so this isn't just `used >= rackU`.
-  const full = findFirstGap(shelves, rackU, 1) === null
+  // Front and rear are independent planes, so capacity is tracked per face:
+  // a full front says nothing about whether the rear has room.
+  const usedByMount: Record<ShelfMount, number> = {
+    front: sumU(shelves, 'front'),
+    rear: sumU(shelves, 'rear'),
+  }
+  // "Full" means no gap on that face fits even a 1U shelf — shelves don't
+  // have to be contiguous, so this isn't just `used >= rackU`.
+  const fullByMount: Record<ShelfMount, boolean> = {
+    front: findFirstGap(shelves, rackU, 1, 'front') === null,
+    rear: findFirstGap(shelves, rackU, 1, 'rear') === null,
+  }
 
   // Display top-to-bottom, matching the rack itself, regardless of the
   // order shelves were added in.
@@ -35,7 +43,7 @@ export function ShelfEditor() {
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-medium">Shelves</span>
         <span className="text-xs text-white/50">
-          {used}U / {rackU}U
+          front {usedByMount.front}U · rear {usedByMount.rear}U / {rackU}U
         </span>
       </div>
 
@@ -47,7 +55,10 @@ export function ShelfEditor() {
         )}
         {sorted.map((shelf) => {
           const topRow = shelf.startU + shelf.u - 1
-          const cap = Math.max(shelf.u, maxDownGrowth(shelves, shelf.id, topRow))
+          const cap = Math.max(
+            shelf.u,
+            maxDownGrowth(shelves, shelf.id, topRow, normalizeShelfMount(shelf)),
+          )
           const options = SHELF_TYPES.filter((t) => t.u <= cap)
           // Row numbers count down from the top of the rack (1 = topmost),
           // independent of `startU`'s bottom-up indexing.
@@ -126,16 +137,19 @@ export function ShelfEditor() {
       </div>
 
       <div className="mt-2 flex gap-2">
-        <button
-          type="button"
-          onClick={addShelf}
-          disabled={full}
-          className="flex-1 rounded bg-accent/20 px-2 py-1.5 text-xs font-medium text-accent hover:bg-accent/30 disabled:opacity-40 pointer-coarse:py-3"
-        >
-          + Add shelf
-        </button>
+        {(['front', 'rear'] as ShelfMount[]).map((mount) => (
+          <button
+            key={mount}
+            type="button"
+            onClick={() => addShelf(mount)}
+            disabled={fullByMount[mount]}
+            className="flex-1 rounded bg-accent/20 px-2 py-1.5 text-xs font-medium text-accent hover:bg-accent/30 disabled:opacity-40 pointer-coarse:py-3"
+          >
+            + {mount === 'front' ? 'Front' : 'Rear'} shelf
+          </button>
+        ))}
       </div>
-      {full && (
+      {fullByMount.front && fullByMount.rear && (
         <p className="mt-1 text-[10px] text-white/40">
           No room left — remove or shrink a shelf to add another.
         </p>

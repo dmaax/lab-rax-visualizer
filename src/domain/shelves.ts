@@ -17,14 +17,20 @@ export function nextShelfId(existing: Shelf[]): string {
   return `s${max + 1}`
 }
 
-function makeShelf(shelfType: ShelfType, startU: number, existing: Shelf[], template?: PartStyle): Shelf {
+function makeShelf(
+  shelfType: ShelfType,
+  startU: number,
+  existing: Shelf[],
+  template?: PartStyle,
+  mount: ShelfMount = 'front',
+): Shelf {
   const style = template ?? DEFAULT_STYLES.shelves
   return {
     id: nextShelfId(existing),
     u: shelfTypeU(shelfType),
     shelfType,
     startU,
-    mount: 'front',
+    mount,
     solid: style.solid,
     color: style.color,
     pattern: style.pattern,
@@ -53,20 +59,52 @@ export function normalizeShelfMount(shelf: Shelf): ShelfMount {
   return shelf.mount === 'rear' ? 'rear' : 'front'
 }
 
-export function sumU(shelves: Shelf[]): number {
-  return shelves.reduce((n, s) => n + s.u, 0)
+/** Rows used, optionally counting only one face of the rack. */
+export function sumU(shelves: Shelf[], mount?: ShelfMount): number {
+  return shelves.reduce(
+    (n, s) => (mount && normalizeShelfMount(s) !== mount ? n : n + s.u),
+    0,
+  )
 }
 
-/** Rows (0-indexed from the bottom) covered by any shelf. */
-function occupiedRows(shelves: Shelf[], rackU: number, excludeId?: string): boolean[] {
+/**
+ * Rows (0-indexed from the bottom) covered by shelves on ONE face of the rack.
+ * Front and rear are independent mounting planes — a rear bracket and a front
+ * tray can share the same rows — so every placement question has to name the
+ * face it is asking about.
+ */
+function occupiedRows(
+  shelves: Shelf[],
+  rackU: number,
+  mount: ShelfMount,
+  excludeId?: string,
+): boolean[] {
   const occupied = new Array(rackU).fill(false)
   for (const s of shelves) {
     if (s.id === excludeId) continue
+    if (normalizeShelfMount(s) !== mount) continue
     for (let i = s.startU; i < s.startU + s.u && i < rackU; i++) {
       if (i >= 0) occupied[i] = true
     }
   }
   return occupied
+}
+
+/** Whether `u` rows from `startU` are inside the rack and free on that face. */
+export function fitsAt(
+  shelves: Shelf[],
+  rackU: number,
+  mount: ShelfMount,
+  startU: number,
+  u: number,
+  excludeId?: string,
+): boolean {
+  if (startU < 0 || startU + u > rackU) return false
+  const occupied = occupiedRows(shelves, rackU, mount, excludeId)
+  for (let row = startU; row < startU + u; row++) {
+    if (occupied[row]) return false
+  }
+  return true
 }
 
 /**
@@ -76,8 +114,13 @@ function occupiedRows(shelves: Shelf[], rackU: number, excludeId?: string): bool
  * add, is the gap right underneath what's already there). Returns null if no
  * such gap exists anywhere, used to decide whether "add shelf" is enabled.
  */
-export function findFirstGap(shelves: Shelf[], rackU: number, size: ShelfU = 1): number | null {
-  const occupied = occupiedRows(shelves, rackU)
+export function findFirstGap(
+  shelves: Shelf[],
+  rackU: number,
+  size: ShelfU = 1,
+  mount: ShelfMount = 'front',
+): number | null {
+  const occupied = occupiedRows(shelves, rackU, mount)
   for (let start = rackU - size; start >= 0; start--) {
     let fits = true
     for (let i = start; i < start + size; i++) {
@@ -105,13 +148,8 @@ export function canMoveShelf(
 ): boolean {
   const shelf = shelves.find((s) => s.id === shelfId)
   if (!shelf) return false
-  const start = shelf.startU + delta
-  if (start < 0 || start + shelf.u > rackU) return false
-  const occupied = occupiedRows(shelves, rackU, shelfId)
-  for (let row = start; row < start + shelf.u; row++) {
-    if (occupied[row]) return false
-  }
-  return true
+  const mount = normalizeShelfMount(shelf)
+  return fitsAt(shelves, rackU, mount, shelf.startU + delta, shelf.u, shelfId)
 }
 
 /**
@@ -124,10 +162,16 @@ export function canMoveShelf(
  * the shelf-type selector so a shelf can never be resized into occupied or
  * out-of-bounds space.
  */
-export function maxDownGrowth(shelves: Shelf[], shelfId: string, topRow: number): number {
+export function maxDownGrowth(
+  shelves: Shelf[],
+  shelfId: string,
+  topRow: number,
+  mount: ShelfMount,
+): number {
   const occupied = new Set<number>()
   for (const s of shelves) {
     if (s.id === shelfId) continue
+    if (normalizeShelfMount(s) !== mount) continue
     for (let i = s.startU; i < s.startU + s.u; i++) occupied.add(i)
   }
   let size = 0

@@ -9,6 +9,7 @@ import type {
   Shelf,
   ShelfMount,
   ShelfType,
+  ShelfU,
 } from '../domain/types'
 import { PALETTE_SIZE } from '../domain/types'
 import { MAX_U, MIN_U, shelfTypeU } from '../domain/constants'
@@ -17,8 +18,10 @@ import {
   canMoveShelf,
   clampShelvesToRack,
   findFirstGap,
+  fitsAt,
   makeShelf,
   maxDownGrowth,
+  normalizeShelfMount,
 } from '../domain/shelves'
 import { decodeBuild, readShareParam } from '../share/url-state'
 
@@ -31,7 +34,7 @@ interface BuildActions {
   setShelfMount: (id: string, mount: ShelfMount) => void
   setShelfType: (id: string, shelfType: ShelfType) => void
   setShelfStyle: (id: string, patch: Partial<Omit<Shelf, 'id' | 'u' | 'shelfType'>>) => void
-  addShelf: () => void
+  addShelf: (mount: ShelfMount) => void
   removeShelf: (id: string) => void
   loadBuild: (state: BuildState) => void
   reset: () => void
@@ -105,9 +108,22 @@ export const useBuildStore = create<BuildStore>()(
         ),
 
       setShelfMount: (id, mount) =>
-        set((s) => ({
-          shelves: s.shelves.map((sh) => (sh.id === id ? { ...sh, mount } : sh)),
-        })),
+        set((s) => {
+          const shelf = s.shelves.find((sh) => sh.id === id)
+          if (!shelf || normalizeShelfMount(shelf) === mount) return {}
+          // Keep the same rows when they are free on the target face, else
+          // drop into the first gap there. Refused only when that face has no
+          // room at all, so a switch can never stack two shelves on one face.
+          let startU = shelf.startU
+          if (!fitsAt(s.shelves, s.rackU, mount, startU, shelf.u, id)) {
+            const gap = findFirstGap(s.shelves, s.rackU, shelf.u as ShelfU, mount)
+            if (gap === null) return {}
+            startU = gap
+          }
+          return {
+            shelves: s.shelves.map((sh) => (sh.id === id ? { ...sh, mount, startU } : sh)),
+          }
+        }),
 
       setShelfType: (id, shelfType) =>
         set((s) => {
@@ -118,7 +134,10 @@ export const useBuildStore = create<BuildStore>()(
           // maxDownGrowth) — the editor only offers types that already fit,
           // this is a safety net for callers that don't pre-filter.
           const topRow = shelf.startU + shelf.u - 1
-          const cap = Math.max(shelf.u, maxDownGrowth(s.shelves, id, topRow))
+          const cap = Math.max(
+            shelf.u,
+            maxDownGrowth(s.shelves, id, topRow, normalizeShelfMount(shelf)),
+          )
           if (u > cap) return {}
           const startU = topRow - u + 1
           // `solid` defaults from the chosen type (plates are solid, the
@@ -135,15 +154,17 @@ export const useBuildStore = create<BuildStore>()(
           shelves: s.shelves.map((sh) => (sh.id === id ? { ...sh, ...patch } : sh)),
         })),
 
-      addShelf: () =>
+      addShelf: (mount) =>
         set((s) => {
-          const startU = findFirstGap(s.shelves, s.rackU, 1)
-          if (startU === null) return {} // no room left — no-op
+          const startU = findFirstGap(s.shelves, s.rackU, 1, mount)
+          if (startU === null) return {} // no room on that face — no-op
           const first = s.shelves[0]
           const template = first
             ? { color: first.color, pattern: first.pattern, solid: first.solid }
             : undefined
-          return { shelves: [...s.shelves, makeShelf('plate-1u', startU, s.shelves, template)] }
+          return {
+            shelves: [...s.shelves, makeShelf('plate-1u', startU, s.shelves, template, mount)],
+          }
         }),
 
       removeShelf: (id) =>
