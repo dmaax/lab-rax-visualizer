@@ -6,7 +6,7 @@ import { VisibilityToggle } from '../../ui/visibility-toggle'
 
 // Pattern/solid controls are disabled for now: RackReal renders real STL
 // parts with a flat color only, so there's no pattern preview to drive.
-export function PartControl({ part }: { part: PartType }) {
+export function PartControl({ part, extra }: { part: PartType; extra?: React.ReactNode }) {
   const style = useBuildStore((s) => s.parts[part])
   const setPartStyle = useBuildStore((s) => s.setPartStyle)
   const palette = useBuildStore((s) => s.palette)
@@ -44,6 +44,7 @@ export function PartControl({ part }: { part: PartType }) {
           />
         </div>
       </div>
+      {extra && <div className="mt-2">{extra}</div>}
     </div>
   )
 }

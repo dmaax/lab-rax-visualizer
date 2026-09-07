@@ -31,6 +31,7 @@ interface BuildActions {
   setPaletteColor: (index: number, color: string) => void
   toggle: (part: OptionalPart) => void
   moveShelf: (id: string, delta: number) => void
+  moveCableHolder: (delta: number) => void
   setShelfMount: (id: string, mount: ShelfMount) => void
   setShelfType: (id: string, shelfType: ShelfType) => void
   setShelfStyle: (id: string, patch: Partial<Omit<Shelf, 'id' | 'u' | 'shelfType'>>) => void
@@ -66,7 +67,10 @@ export const useBuildStore = create<BuildStore>()(
           // middle as the rack grows, or off the bottom as it shrinks.
           const delta = rackU - s.rackU
           const shifted = s.shelves.map((sh) => ({ ...sh, startU: sh.startU + delta }))
-          return { rackU, shelves: clampShelvesToRack(shifted, rackU) }
+          // The cable holders are anchored to the top the same way, then
+          // clamped so a shrinking rack can never leave them outside it.
+          const cableHolderU = Math.max(0, Math.min(rackU - 1, s.cableHolderU + delta))
+          return { rackU, shelves: clampShelvesToRack(shifted, rackU), cableHolderU }
         }),
 
       setPartStyle: (part, patch) =>
@@ -95,6 +99,13 @@ export const useBuildStore = create<BuildStore>()(
 
       toggle: (part) =>
         set((s) => ({ toggles: { ...s.toggles, [part]: !s.toggles[part] } })),
+
+      moveCableHolder: (delta) =>
+        set((s) => {
+          const cableHolderU = s.cableHolderU + delta
+          if (cableHolderU < 0 || cableHolderU >= s.rackU) return {}
+          return { cableHolderU }
+        }),
 
       moveShelf: (id, delta) =>
         set((s) =>
@@ -197,6 +208,7 @@ export const useBuildStore = create<BuildStore>()(
         parts: s.parts,
         toggles: s.toggles,
         shelves: s.shelves,
+        cableHolderU: s.cableHolderU,
         palette: s.palette,
       }),
       // Zustand's default merge is a shallow `{...current, ...persisted}`,

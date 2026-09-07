@@ -41,7 +41,8 @@ export function ControlsSheet() {
   const toggles = useBuildStore((s) => s.toggles)
   const shelves = useBuildStore((s) => s.shelves)
   const palette = useBuildStore((s) => s.palette)
-  const count = totalPartCount({ rackU, parts, toggles, shelves, palette })
+  const cableHolderU = useBuildStore((s) => s.cableHolderU)
+  const count = totalPartCount({ rackU, parts, toggles, shelves, cableHolderU, palette })
 
   const [snap, setSnap] = useState<Snap>('peek')
   const [dragging, setDragging] = useState(false)

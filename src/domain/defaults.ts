@@ -55,6 +55,7 @@ export function makeDefaultBuild(): BuildState {
     parts: structuredClone(DEFAULT_STYLES),
     toggles: { ...DEFAULT_TOGGLES },
     shelves: defaultShelves(DEFAULT_U),
+    cableHolderU: DEFAULT_U - 1,
     palette: [...DEFAULT_PALETTE],
   }
 }

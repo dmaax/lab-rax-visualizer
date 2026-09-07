@@ -89,5 +89,7 @@ export interface BuildState {
   parts: Record<PartType, PartStyle>
   toggles: Toggles
   shelves: Shelf[]
+  /** Row (0-indexed from the bottom) the rear cable holder pair sits on. */
+  cableHolderU: number
   palette: Palette
 }

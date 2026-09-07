@@ -3,6 +3,7 @@ import { useBuildStore } from '../../store/use-build-store'
 import { SizeControl } from '../controls/size-control'
 import { ColorsSection } from '../controls/colors-section'
 import { PartControl } from '../controls/part-control'
+import { CableHolderHeight } from '../controls/cable-holder-height'
 import { ShelfEditor } from '../controls/shelf-editor'
 import { VisibilityToggle } from '../../ui/visibility-toggle'
 import { CollapsibleSection } from '../../ui/collapsible-section'
@@ -31,7 +32,13 @@ export function ControlsPanel({ footer }: { footer?: React.ReactNode }) {
       <CollapsibleSection title="Parts" collapsible>
         <div className="space-y-2">
           {partTypes.map((part) => (
-            <PartControl key={part} part={part} />
+            <PartControl
+              key={part}
+              part={part}
+              // Cable holders are the one fixed part that isn't pinned by the
+              // frame geometry, so they get a row picker of their own.
+              extra={part === 'cableHolders' ? <CableHolderHeight /> : undefined}
+            />
           ))}
         </div>
       </CollapsibleSection>

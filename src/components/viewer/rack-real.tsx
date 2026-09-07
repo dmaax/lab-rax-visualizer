@@ -27,6 +27,7 @@ export function RackReal() {
   const rackU = useBuildStore((s) => s.rackU)
   const parts = useBuildStore((s) => s.parts)
   const toggles = useBuildStore((s) => s.toggles)
+  const cableHolderU = useBuildStore((s) => s.cableHolderU)
   const shelves = useBuildStore((s) => s.shelves)
   const visibility = useBuildStore((s) => s.visibility)
 
@@ -416,7 +417,7 @@ export function RackReal() {
           and the hooks opening the other way, so it takes a half turn about Y
           for the plate to meet the rail's back face and the hooks to open
           away from the rack, where cables are actually run. Sits just behind
-          that face and is centered over the rails' own span. */}
+          that face, centered in whichever U row is selected. */}
       {toggles.cableHolders &&
         visibility.cableHolders &&
         [leftRailX, rightRailX].map((x, i) => (
@@ -426,7 +427,7 @@ export function RackReal() {
             color={parts.cableHolders.color}
             position={[
               x,
-              WIDTH_RAIL_BAR_TOP_MM + (totalHeight - cableHolder.size.y) / 2,
+              WIDTH_RAIL_BAR_TOP_MM + cableHolderU * U_MM + (U_MM - cableHolder.size.y) / 2,
               backRailZ - rail1.size.z / 2 - cableHolder.size.z / 2,
             ]}
             rotation={[0, PI, 0]}

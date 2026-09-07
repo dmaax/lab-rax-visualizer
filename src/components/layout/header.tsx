@@ -9,7 +9,14 @@ import { Menu } from '../../ui/menu'
 
 function currentBuild(): BuildState {
   const s = useBuildStore.getState()
-  return { rackU: s.rackU, parts: s.parts, toggles: s.toggles, shelves: s.shelves, palette: s.palette }
+  return {
+    rackU: s.rackU,
+    parts: s.parts,
+    toggles: s.toggles,
+    shelves: s.shelves,
+    cableHolderU: s.cableHolderU,
+    palette: s.palette,
+  }
 }
 
 export function Header() {
@@ -19,9 +26,10 @@ export function Header() {
   const toggles = useBuildStore((s) => s.toggles)
   const shelves = useBuildStore((s) => s.shelves)
   const palette = useBuildStore((s) => s.palette)
+  const cableHolderU = useBuildStore((s) => s.cableHolderU)
   const [shared, setShared] = useState(false)
 
-  const count = totalPartCount({ rackU, parts, toggles, shelves, palette })
+  const count = totalPartCount({ rackU, parts, toggles, shelves, cableHolderU, palette })
 
   const onShare = async () => {
     const url = buildShareUrl(currentBuild())

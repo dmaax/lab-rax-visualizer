@@ -20,6 +20,7 @@ export function encodeBuild(state: BuildState): string {
     p: state.parts,
     t: state.toggles,
     s: state.shelves,
+    h: state.cableHolderU,
     c: state.palette,
   }
   return toBase64Url(JSON.stringify(compact))
@@ -33,6 +34,7 @@ export function decodeBuild(param: string): BuildState | null {
       p?: unknown
       t?: unknown
       s?: unknown
+      h?: unknown
       c?: unknown
     }
     const base = makeDefaultBuild()
@@ -77,12 +79,19 @@ export function decodeBuild(param: string): BuildState | null {
       )
     }
 
+    // Out-of-range or missing rows fall back to the default rather than
+    // placing the holders outside the rack.
+    const cableHolderU =
+      typeof raw.h === 'number' && raw.h >= 0 && raw.h < rackU
+        ? Math.round(raw.h)
+        : Math.min(base.cableHolderU, rackU - 1)
+
     let palette: Palette = base.palette
     if (Array.isArray(raw.c) && raw.c.length === PALETTE_SIZE && raw.c.every((c) => typeof c === 'string')) {
       palette = raw.c as Palette
     }
 
-    return { rackU, parts, toggles, shelves, palette }
+    return { rackU, parts, toggles, shelves, cableHolderU, palette }
   } catch {
     return null
   }
