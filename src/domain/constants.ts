@@ -77,12 +77,14 @@ export interface ShelfTypeDef {
 export const SHELF_TYPES: ShelfTypeDef[] = [
   { id: 'plate-1u', label: 'Plate (1U)', u: 1 },
   { id: 'plate-2u', label: 'Plate (2U)', u: 2 },
+  { id: 'plate-vent-1u', label: 'Vent plate (1U)', u: 1 },
   { id: 'shelf-open-1u', label: 'Open shelf (1U)', u: 1 },
   { id: 'shelf-slotted-1u', label: 'Slotted shelf (1U)', u: 1 },
   { id: 'shelf-plate-40mm-fan-1u', label: '40mm fan plate (1U)', u: 1 },
   { id: 'shelf-plate-80mm-fan-2u', label: '80mm fan plate (2U)', u: 2 },
   { id: 'shelf-plate-keystone-1u', label: 'Keystone plate (1U)', u: 1 },
   { id: 'shelf-sbc-7-2u', label: 'SBC holder ×7 (2U)', u: 2 },
+  { id: 'shelf-mini-itx-2u', label: 'Mini-ITX shelf (2U)', u: 2 },
 ]
 
 export function shelfTypeU(id: ShelfType): ShelfU {

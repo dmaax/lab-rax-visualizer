@@ -33,12 +33,14 @@ export type ShelfU = 1 | 2 | 3 | 4
 export type ShelfType =
   | 'plate-1u'
   | 'plate-2u'
+  | 'plate-vent-1u'
   | 'shelf-open-1u'
   | 'shelf-slotted-1u'
   | 'shelf-plate-40mm-fan-1u'
   | 'shelf-plate-80mm-fan-2u'
   | 'shelf-plate-keystone-1u'
   | 'shelf-sbc-7-2u'
+  | 'shelf-mini-itx-2u'
 
 export interface Shelf {
   id: string

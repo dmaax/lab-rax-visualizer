@@ -53,12 +53,14 @@ export const MODEL_FILES = {
 export const SHELF_TYPE_FILES: Record<ShelfType, string> = {
   'plate-1u': 'plate-1u.stl',
   'plate-2u': 'plate-2u.stl',
+  'plate-vent-1u': 'plate-vent-1u.3mf',
   'shelf-open-1u': 'shelf-open-1u.stl',
   'shelf-slotted-1u': 'shelf-slotted-1u.stl',
   'shelf-plate-40mm-fan-1u': 'shelf-plate-40mm-fan-1u.3mf',
   'shelf-plate-80mm-fan-2u': 'shelf-plate-80mm-fan-2u.stl',
   'shelf-plate-keystone-1u': 'shelf-plate-keystone-1u.stl',
   'shelf-sbc-7-2u': 'shelf-sbc-7-2u.stl',
+  'shelf-mini-itx-2u': 'shelf-mini-itx-2u.stl',
 } as const
 
 // --- Measured constants (from inspecting the actual files) -------------------

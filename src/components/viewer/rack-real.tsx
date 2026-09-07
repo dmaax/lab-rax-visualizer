@@ -59,15 +59,24 @@ export function RackReal() {
   const shelfFan80mm2u = useStlPart(SHELF_TYPE_FILES['shelf-plate-80mm-fan-2u'], Math.PI, Math.PI / 2)
   const shelfKeystone1u = useStlPart(SHELF_TYPE_FILES['shelf-plate-keystone-1u'], Math.PI, Math.PI / 2)
   const shelfSbc72u = useStlPart(SHELF_TYPE_FILES['shelf-sbc-7-2u'])
+  // Same 252 x thin x 42mm layout as the 40mm fan plate, so it needs no
+  // extra rotation on top of the Z-up bake.
+  const plateVent1u = use3mfPart(SHELF_TYPE_FILES['plate-vent-1u'])
+  // This one ships lying on its back - its own Y is the 2U height and its Z
+  // the depth - so it takes a quarter turn about X on top of the bake, which
+  // stands the front bezel up and leaves the tray at the bottom.
+  const shelfMiniItx2u = useStlPart(SHELF_TYPE_FILES['shelf-mini-itx-2u'], 0, -Math.PI / 2)
   const shelfGeoByType: Record<ShelfType, PreparedGeometry> = {
     'plate-1u': plate1u,
     'plate-2u': plate2u,
+    'plate-vent-1u': plateVent1u,
     'shelf-open-1u': shelfOpen1u,
     'shelf-slotted-1u': shelfSlotted1u,
     'shelf-plate-40mm-fan-1u': shelfFan40mm1u,
     'shelf-plate-80mm-fan-2u': shelfFan80mm2u,
     'shelf-plate-keystone-1u': shelfKeystone1u,
     'shelf-sbc-7-2u': shelfSbc72u,
+    'shelf-mini-itx-2u': shelfMiniItx2u,
   }
 
   const totalHeight = rackU * U_MM
