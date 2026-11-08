@@ -49,10 +49,6 @@ export function SupportPanel({ variant = 'overlay' }: Props) {
             </a>
           ))}
         </div>
-        <p className="mt-2 text-[10px] leading-snug text-white/30">
-          Lab Rax planner is a fan-made visualizer. Parts &amp; design credit:
-          the-diy-life.com.
-        </p>
       </CollapsibleSection>
     </div>
   )

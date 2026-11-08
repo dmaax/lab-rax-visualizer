@@ -55,14 +55,20 @@ export function ControlsPanel({ footer }: { footer?: React.ReactNode }) {
         <ShelfEditor />
       </CollapsibleSection>
 
-      <a
-        href={SOURCE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block text-center text-[11px] text-white/40 transition hover:text-white/70"
-      >
-        Source code (AGPL-3.0)
-      </a>
+      <footer className="space-y-1 text-center text-[11px] leading-snug text-white/40">
+        <p>
+          Lab Rax planner is a fan-made visualizer. Parts &amp; design credit:{' '}
+          the-diy-life.com.
+        </p>
+        <a
+          href={SOURCE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block transition hover:text-white/70"
+        >
+          Source code (AGPL-3.0)
+        </a>
+      </footer>
 
       {footer}
     </div>
