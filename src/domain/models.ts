@@ -4,7 +4,8 @@
 
 import type { ShelfType } from './types'
 
-export const MODEL_BASE = '/models-3d/'
+// Honors Vite's `base`, so models also resolve when deployed under a subpath.
+export const MODEL_BASE = `${import.meta.env.BASE_URL}models-3d/`
 
 // Rail/panel segments are exact multiples of 44.45mm and are only available
 // in these lengths. Any rack height is built by greedily stacking segments
