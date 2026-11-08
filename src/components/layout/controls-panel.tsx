@@ -8,6 +8,11 @@ import { ShelfEditor } from '../controls/shelf-editor'
 import { VisibilityToggle } from '../../ui/visibility-toggle'
 import { CollapsibleSection } from '../../ui/collapsible-section'
 
+// Deployments set VITE_SOURCE_URL to the exact commit they were built from.
+const SOURCE_URL =
+  (import.meta.env.VITE_SOURCE_URL as string | undefined) ??
+  'https://github.com/xTumulus/lab-rax-visualizer'
+
 /**
  * Single source of truth for the rack's control sections. Just the
  * `space-y-3` stack (+ optional footer) — no scroll container or padding, so
@@ -49,6 +54,15 @@ export function ControlsPanel({ footer }: { footer?: React.ReactNode }) {
       >
         <ShelfEditor />
       </CollapsibleSection>
+
+      <a
+        href={SOURCE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block text-center text-[11px] text-white/40 transition hover:text-white/70"
+      >
+        Source code (AGPL-3.0)
+      </a>
 
       {footer}
     </div>
